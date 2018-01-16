@@ -3,15 +3,15 @@
 05-01-2018 FRI
 -------------------------
 learned python basics
-convertion of png color image to grayscale image
-converting grayscale image to binarized image 
+converting image to grayscale
+converting rgb image to binarized image 
 
 file : binarization.py
 libraries : cv2, numpy, matplotlib
 
 methods tried : global thresholding  - (fastest, with no noise)
-				adaptive mean - 
-				adaptive gaussian - (average performance - maybe suitable balance)
-				otsu's method (2nd best resutl, time consuming)
-				otsu's method with gaussian blur (best result, time consuming)
+				adaptive mean -  noisy and time consuming
+				adaptive gaussian - noisy and time consuming
+				otsu's method - best result
+				otsu's method with gaussian blur - noisy for noisy input
 	
