@@ -28,4 +28,16 @@ created binarize() function
 file : binarize.py
 libraries : cv2
 
+------------------------
+19-01-2018 FRI
+------------------------
+
+Segmentation using contour detection in opencv.
+Obtained bounding boxes with their x,y coordinates and their width and height.
+
+Observation : Works well with plain paper as background 
+	      Does not work with ruled paper as background
+	      
+File : segmentation.py
+
 
