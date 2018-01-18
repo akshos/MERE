@@ -14,4 +14,18 @@ methods tried : global thresholding  - (fastest, with no noise)
 				adaptive gaussian - noisy and time consuming
 				otsu's method - best result
 				otsu's method with gaussian blur - noisy for noisy input
-	
+
+RESULT : use Otsu's method for binarization step
+
+-------------------------
+12-01-2018 FRI
+-------------------------
+
+setup git accounts and repository
+testing otsu's thresholding with noisy images, images with background lines and shadow
+created binarize() function
+
+file : binarize.py
+libraries : cv2
+
+
