@@ -1,6 +1,8 @@
 import imageRegion
 from cv2 import findContours, imwrite, RETR_EXTERNAL, CHAIN_APPROX_NONE, boundingRect
 
+SEG_PADDING = 8
+
 def segmentation(image):
 	print 'Segmenting the image : ',
 	segments = []
@@ -10,13 +12,13 @@ def segmentation(image):
 		[x,y,w,h] = boundingRect(contour)
 		if w < 20 and h < 20:
 			continue
-		region = image[y:y+h,x:x+w]
+		region = image[y-10:y+h+10,x-10:x+w+10]
 		
-		imwrite(str(i)+".jpg", region)
+		imwrite("segments/"+str(i)+".jpg", region)
 		i = i + 1
 		
 		segment = imageRegion.imageRegion()
 		segment.setSymbolNode(region, x, y, w, h)
-		segments.append(region)
+		segments.append(segment)
 	print 'done'
 	return segments

@@ -25,7 +25,7 @@ setup git accounts and repository
 testing otsu's thresholding with noisy images, images with background lines and shadow
 created binarize() function
 
-file : binarize.py
+File : binarize.py
 libraries : cv2
 
 ------------------------
@@ -40,4 +40,22 @@ Observation : Works well with plain paper as background
 	      
 File : segmentation.py
 
+------------------------
+02-02-2018 FRI
+------------------------
 
+Created classes for storing symbol nodes, coordinates, recognizedSymbols, symbolClass
+Store each image segment into symbolNodes
+Tried online training set for image recognition
+
+Files : imageRegion.py, segmentation.py
+
+------------------------
+16-02-2018 FRI
+------------------------
+
+Developed dataset generator and SVM classifier for digit classification
+Tested the SVM classifier
+
+Files : learning.py, server.py
+Libraries : scikit-learn

@@ -51,3 +51,9 @@ class imageRegion:
 		else:
 			print 'ERROR : Assigning region label to symbol node type'
 			sys.exit()
+	
+	def getSymbolImage(self):
+		return self.symbolImage
+	
+	def setId(self, id):
+		self.symbolIdentity = id
