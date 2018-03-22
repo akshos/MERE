@@ -22,21 +22,52 @@ _ASCENDER = 4
 _DESCENDER = 5
 _CENTERED = 6
 
+_NONSCRIPTED_SYMBOLS = ['+', '-', '=', '*', '_']
+_OPENBRACKET_SYMBOLS = ['(', '[']
+_DESCENDER_SYMBOLS = ['p', 'g', 'q', 'y', 'j']
+_ASCENDER_SYMBOLS = ['b', 'd', 'h', 'k', 't']
+
+
+def createSymbolNodes(segmentList):
+	symbolNodeList = []
+	for segment in segmentList:
+		symbolNode = imageRegion()
+		symbolNode.setSymbolNode(segment[0], segment[1], segment[2])
+		symbolNode.calculateCentroid()
+		symbolNodeList.append(symbolNode)
+	return symbolNodeList
+
+
+def assignSymbolClasses(symbolNodeList):
+	for symbolNode in symbolNodeList:
+		id = symbolNode.getSymbolID()
+		symbolClass = _CENTERED
+		if id in _NONSCRIPTED_SYMBOLS :
+			symbolClass = _NONSCRIPTED
+		elif id in _OPENBRACKET_SYMBOLS :
+			symbolClass = _OPENBRACKET
+		elif id in _ASCENDER_SYMBOLS :
+			symbolClass = _ASCENDER
+		elif id in _DESCENDER_SYMBOLS :
+			symbolClass = _DESCENDER
+		symbolNode.setSymbolClass(symbolClass)
+	return symbolNodeList
 
 class imageRegion:
 	
 	def __init__(self):
 		self.regionFlag = _REGION_NODE
-		self.children = []		
-	
-	def setSymbolNode(self, image, sX, sY, sW, sH):
+		self.children = []
+
+	def setSymbolNode(self, image, data, dimensions ):
 		self.regionFlag = _SYMBOL_NODE
-		self.symbolIdentity = None
+		self.symbolID = None
 		self.symbolImage = image
-		self.symbolX = sX
-		self.symbolY = sY
-		self.symbolWidth = sW
-		self.symbolHeight = sH
+		self.symbolData = data
+		self.symbolX = dimensions[0]
+		self.symbolY = dimensions[1]
+		self.symbolWidth = dimensions[2]
+		self.symbolHeight = dimensions[3]
 		self.symbolCentroid = []
 		self.symbolClass = None
 	
@@ -55,5 +86,33 @@ class imageRegion:
 	def getSymbolImage(self):
 		return self.symbolImage
 	
+	def getSymbolData(self):
+		return self.symbolData
+
+	def getSymbolID(self):
+		return self.symbolID
+
+	def setSymbolClass(self, symbolClass):
+		self.symbolClass = symbolClass
+
 	def setId(self, id):
-		self.symbolIdentity = id
+		self.symbolID = id
+	
+	def calculateCentroid(self):
+		self.symbolCentroid.append(self.symbolHeight/2)
+		self.symbolCentroid.append(self.symbolWidth/2)
+
+	def getCentroid(self):
+		return self.symbolCentroid
+
+	def addChild(self, child):
+		self.children.append(child)
+	
+	def getChildren(self):
+		return self.children
+	
+	def getChild(self, index):
+		return self.children[index]
+	
+	def getX(self):
+		return self.symbolX
