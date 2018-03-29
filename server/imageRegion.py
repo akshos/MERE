@@ -119,7 +119,7 @@ class imageRegion:
 		self.symbolCentroid.append(self.symbolHeight/2)
 		self.symbolCentroid.append(self.symbolWidth/2)
 
-	def setBelowThreshold(self. thresh):
+	def setBelowThreshold(self, thresh):
 		self.belowThreshold = thresh
 
 	def setAboveThreshold(self, thresh):

@@ -100,8 +100,8 @@ def overlaps(snode1, snode2):
     if snode1 != snode2:
         if snode1.getClass() == imageRegion._NONSCRIPTED:
             if snode1.getMinX() <= snode2.getCentroidX() and snode2.getCentroidX() <= snode1.getMaxX():
-                if !contains(snode2, snode1):
-                    if !overlapCondition1(snode1, snode2) and !overlapCondition2(snode1, snode2):
+                if not (contains(snode2, snode1)):
+                    if not (overlapCondition1(snode1, snode2)) and not (overlapCondition2(snode1, snode2)):
                         return True
     return False
 
@@ -113,7 +113,7 @@ def start(snodeList):
     snode2 = snodeList[length-2]
     if overlaps(snode1, snode2) or contains(snode1, snode2) or (snode1.getClass() == imageRegion._VARIABLERANGE and not(isAdjacent(snode2, snode1) ) ):
         del snodeList[length-2]
-    else
+    else:
         del snodeList[length-1]
     return start(snodeList)
 
