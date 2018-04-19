@@ -3,6 +3,7 @@ import sys
 _SYMBOL_NODE = 1
 _REGION_NODE = 2
 
+_NOREGION = -1
 _ABOVE = 1
 _BELOW = 2
 _SUBSC = 3
@@ -25,160 +26,173 @@ _CLOSEBRACKET = 7
 
 _NONSCRIPTED_SYMBOLS = ['+', '-', '=', '*', '_']
 _OPENBRACKET_SYMBOLS = ['(', '[']
-_DESCENDER_SYMBOLS = ['p', 'g', 'q', 'y', 'j']
-_ASCENDER_SYMBOLS = ['b', 'd', 'h', 'k', 't', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+_ASCENDER_SYMBOLS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+_CLOSEBRACKET_SYMBOLS = [')', '[']
 
 
 def createSymbolNodes(segmentList):
-	symbolNodeList = []
-	for segment in segmentList:
-		symbolNode = imageRegion()
-		symbolNode.setSymbolNode(segment[0], segment[1], segment[2])
-		symbolNode.calculateCentroid()
-		symbolNodeList.append(symbolNode)
-	return symbolNodeList
+    symbolNodeList = []
+    for segment in segmentList:
+        symbolNode = imageRegion()
+        symbolNode.setSymbolNode(segment[0], segment[1], segment[2])
+        symbolNode.calculateCentroid()
+        symbolNodeList.append(symbolNode)
+    return symbolNodeList
 
 
 def assignThresholds(symbolNode, symbolClass):
-	t = 0.8
-	if symbolClass == _NONSCRIPTED:
-		symbolNode.setBelowThreshold(0.5 * symbolNode.getHeight())
-		symbolNode.setAboveThreshold(0.5 * symbolNode.getHeight())
-	elif symbolClass == _OPENBRACKET:
-		symbolNode.setAboveThreshold(symbolNode.getMaxY())
-		symbolNode.setBelowThreshold(symbolNode.getMinY())
-	elif symbolClass == _ASCENDER or symbolClass == _CLOSEBRACKET:
-		symbolNode.setBelowThreshold(t * symbolNode.getHeight())
-		symbolNode.setAboveThreshold(symbolNode.getHeight() - (t*symbolNode.getHeight()))
-		symbolNode.setSubscThreshold(t*symbolNode.getHeight())
-		symbolNode.setSuperThreshold(symbolNode.getHeight() - (t*symbolNode.getHeight()))
+    t = 0
+    if symbolClass == _NONSCRIPTED:
+        symbolNode.setBelowThreshold(0.5 * symbolNode.getHeight())
+        symbolNode.setAboveThreshold(0.5 * symbolNode.getHeight())
+    elif symbolClass == _OPENBRACKET:
+        symbolNode.setAboveThreshold(symbolNode.getHeight())
+        symbolNode.setBelowThreshold(0)
+    elif symbolClass == _ASCENDER or symbolClass == _CLOSEBRACKET:
+        symbolNode.setBelowThreshold(t * symbolNode.getHeight())
+        symbolNode.setAboveThreshold(symbolNode.getHeight() - (t * symbolNode.getHeight()))
+        symbolNode.setSubscThreshold(t * symbolNode.getHeight())
+        symbolNode.setSuperThreshold(symbolNode.getHeight() - (t * symbolNode.getHeight()))
 
 
 def assignSymbolClasses(symbolNodeList):
-	for symbolNode in symbolNodeList:
-		id = symbolNode.getSymbolID()
-		symbolClass = _CENTERED
-		if id in _NONSCRIPTED_SYMBOLS :
-			symbolClass = _NONSCRIPTED
-		elif id in _OPENBRACKET_SYMBOLS :
-			symbolClass = _OPENBRACKET
-		elif id in _ASCENDER_SYMBOLS :
-			symbolClass = _ASCENDER
-		elif id in _DESCENDER_SYMBOLS :
-			symbolClass = _DESCENDER
-		symbolNode.setSymbolClass(symbolClass)
-		assignThreshols(symbolNode, symbolClass)
-	return symbolNodeList
+    for symbolNode in symbolNodeList:
+        id = symbolNode.getSymbolID()
+        symbolClass = _CENTERED
+        if id in _NONSCRIPTED_SYMBOLS:
+            symbolClass = _NONSCRIPTED
+        elif id in _OPENBRACKET_SYMBOLS:
+            symbolClass = _OPENBRACKET
+        elif id in _ASCENDER_SYMBOLS:
+            symbolClass = _ASCENDER
+        elif id in _CLOSEBRACKET_SYMBOLS:
+            symbolClass = _CLOSEBRACKET
+        symbolNode.setSymbolClass(symbolClass)
+        assignThresholds(symbolNode, symbolClass)
+    return symbolNodeList
+
 
 class imageRegion:
-	
-	def __init__(self):
-		self.regionFlag = _REGION_NODE
-		self.children = []
 
-	def setSymbolNode(self, image, data, dimensions ):
-		self.regionFlag = _SYMBOL_NODE
-		self.symbolID = None
-		self.symbolImage = image
-		self.symbolData = data
-		self.symbolX = dimensions[0]
-		self.symbolY = dimensions[1]
-		self.symbolWidth = dimensions[2]
-		self.symbolHeight = dimensions[3]
-		self.symbolCentroid = []
-		self.symbolClass = None
-	
-#	def __init__(self, regionFlag, regionLabel = None):
-#		self.regionFlag = regionFlag
-#		self.regionLabel = regionLabel
-#		self.children = []
-	
-	def setRegionLabel(self, regionLabel):
-		if( self.regionFlag == _REGION_NODE ):
-			self.regionLabel = regionLabel
-		else:
-			print 'ERROR : Assigning region label to symbol node type'
-			sys.exit()
-	
-	def getSymbolImage(self):
-		return self.symbolImage
-	
-	def getSymbolData(self):
-		return self.symbolData
+    def __init__(self):
+        self.regionFlag = _REGION_NODE
+        self.children = []
 
-	def getSymbolID(self):
-		return self.symbolID
+    def setSymbolNode(self, image, data, dimensions):
+        self.regionFlag = _SYMBOL_NODE
+        self.symbolID = None
+        self.symbolImage = image
+        self.symbolData = data
+        self.symbolX = dimensions[0]
+        self.symbolY = dimensions[1]
+        self.symbolWidth = dimensions[2]
+        self.symbolHeight = dimensions[3]
+        self.maxX = self.symbolX + self.symbolWidth
+        self.maxY = self.symbolY + self.symbolHeight
+        self.symbolCentroid = []
+        self.symbolClass = None
 
-	def setSymbolClass(self, symbolClass):
-		self.symbolClass = symbolClass
+    def setRegionLabel(self, regionLabel):
+        if self.regionFlag == _REGION_NODE:
+            self.regionLabel = regionLabel
+        else:
+            print 'ERROR : Assigning region label to symbol node type'
+            sys.exit()
 
-	def setId(self, id):
-		self.symbolID = id
-	
-	def calculateCentroid(self):
-		self.symbolCentroid.append(self.symbolHeight/2)
-		self.symbolCentroid.append(self.symbolWidth/2)
+    def getRegionLabel(self):
+        if self.regionFlag == _REGION_NODE:
+            return self.regionLabel
 
-	def setBelowThreshold(self, thresh):
-		self.belowThreshold = thresh
+    def getSymbolImage(self):
+        return self.symbolImage
 
-	def setAboveThreshold(self, thresh):
-		self.aboveThreshold = thresh
+    def getSymbolData(self):
+        return self.symbolData
 
-	def setSubscThreshold(self, thresh):
-		self.subscThreshold = thresh
+    def getSymbolID(self):
+        return self.symbolID
 
-	def setSuperThreshold(self, thresh):
-		self.superThreshold = thresh
+    def setSymbolClass(self, symbolClass):
+        self.symbolClass = symbolClass
 
-	def getBelowThreshold(self):
-		return self.belowThreshold
+    def setId(self, id):
+        self.symbolID = id
 
-	def getAboveThreshold(self):
-		return self.aboveThreshold
+    def calculateCentroid(self):
+        self.symbolCentroid.append(self.symbolY + self.symbolHeight / 2)
+        self.symbolCentroid.append(self.symbolX + self.symbolWidth / 2)
 
-	def getSubscThreshold(self):
-		return self.subscThreshold
+    def setBelowThreshold(self, thresh):
+        self.belowThreshold = self.symbolY + thresh
 
-	def getSuperThreshold(self):
-		return self.superThreshold
+    def setAboveThreshold(self, thresh):
+        self.aboveThreshold = self.symbolY + thresh
 
-	def getCentroid(self):
-		return self.symbolCentroid
+    def setSubscThreshold(self, thresh):
+        self.subscThreshold = self.symbolY + thresh
 
-	def getCentroidX(self):
-		return self.symbolCentroid[1]
+    def setSuperThreshold(self, thresh):
+        self.superThreshold = self.symbolY + thresh
 
-	def getCentroidY(self):
-		return self.symbolCentroid[0]
+    def getBelowThreshold(self):
+        return self.belowThreshold
 
-	def addChild(self, child):
-		self.children.append(child)
-	
-	def getChildren(self):
-		return self.children
-	
-	def getChild(self, index):
-		return self.children[index]
-	
-	def getMaxX(self):
-		return (self.symbolX + self.symbolWidth)
+    def getAboveThreshold(self):
+        return self.aboveThreshold
 
-	def getMaxY(self):
-		return self.symbolY
+    def getSymbolClass(self):
+        return self.symbolClass
 
-	def getMinX(self):
-		return self.symbolX;
+    def getSubscThreshold(self):
+        return self.subscThreshold
 
-	def getMinY(self):
-		return (self.symbolY - self.symbolHeight)
+    def getSuperThreshold(self):
+        return self.superThreshold
 
-	def getClass(self):
-		return self.symbolClass
+    def getCentroid(self):
+        return self.symbolCentroid
 
-	def getWidth(self):
-		return self.symbolWidth
+    def getCentroidX(self):
+        return self.symbolCentroid[1]
 
-	def getHeight(self):
-		return self.symbolHeight
+    def getCentroidY(self):
+        return self.symbolCentroid[0]
 
+    def addChild(self, child):
+        self.children.append(child)
+
+    def addChildren(self, children):
+        self.children = self.children + children
+
+    def getChildren(self):
+        return self.children
+
+    def getChild(self, index):
+        return self.children[index]
+
+    def getMaxX(self):
+        return self.symbolX + self.symbolWidth
+
+    def getMaxY(self):
+        return self.symbolY + self.symbolHeight
+
+    def getMinX(self):
+        return self.symbolX
+
+    def getMinY(self):
+        return self.symbolY
+
+    def getClass(self):
+        return self.symbolClass
+
+    def getWidth(self):
+        return self.symbolWidth
+
+    def getHeight(self):
+        return self.symbolHeight
+
+    def removeChild(self, child):
+        self.children.remove(child)
+
+    def replaceChildren(self, children):
+        self.children = children
